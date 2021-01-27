@@ -85,7 +85,7 @@ async def lives(ctx):
     embed.add_field(name='Quando acontece?', value='De terça a sexta, às 19h - Horário de Brasília', inline=False)
     await ctx.send(embed=embed)
 
-# Comando ($tront) - mostra algumas curiosidades.
+# Comando ($setup) - lista o setup do streamer da bola azul.
 @bot.command(name="setup")
 async def setup(ctx):
     embed = discord.Embed(
