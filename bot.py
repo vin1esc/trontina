@@ -6,6 +6,7 @@ import asyncio
 import praw # API para conexão com o Reddit.
 from dotenv import load_dotenv
 from discord.ext import commands
+from datetime import datetime, timedelta, timezone
 print ('Starting Trontina...')
 
 # Tokens - Discord e Reddit.
@@ -19,6 +20,9 @@ reddit = praw.Reddit(client_id=R_ID, client_secret=R_SECRET, user_agent=R_USER)
 # Pré-fixo que usaremos para invocar a Trontina no servidor.
 bot = commands.Bot(command_prefix='$')
 
+# Data da última mensagem da Trontina.
+trontinaNextMessageAt = datetime.now()
+
 # Status da Trontina.
 @bot.event
 async def on_ready():
@@ -29,13 +33,22 @@ async def on_ready():
 # Interações da Trontina.
 @bot.event
 async def on_message(message):
+    global trontinaNextMessageAt
+    now = datetime.now()
 
-    # Não queremos que ela responda a si messmo, certo? certo!
+    # Não queremos que ela responda a si mesmo, certo? certo!
     if message.author == bot.user:
+        if 'bom dia' in message.content.lower():
+            trontinaNextMessageAt = message.created_at.replace(tzinfo=timezone.utc).astimezone(tz=None) + timedelta(minutes=5)
         return
 
     # Bom dia!
-    if 'bom dia?' in message.content.lower():
+    if 'bom dia' in message.content.lower():
+
+        # Não queremos que ela se canse de responder bom dias, não é mesmo?
+        if trontinaNextMessageAt.timestamp() > now.timestamp():
+            return
+
         await message.reply('Bom dia :sun_with_face: ', mention_author=True)
 
     # Mensagens pré-programadas.
@@ -95,6 +108,7 @@ async def links(ctx):
     embed.set_author(name='Links úteis do streamer que mais cresce no Brasil')
     embed.add_field(name='Doações', value='[streamelements.com/tront_](https://streamelements.com/tront_/tip)', inline=False)
     embed.add_field(name='Instagram', value='[instagram.com/tronttv](https://instagram.com/tronttv)', inline=False)
+    embed.add_field(name='TikTok', value='[tiktok.com/@tront_](https://tiktok.com/@tront_)', inline=False)
     embed.add_field(name='Twitch', value='[twitch.tv/tront_](https://www.twitch.tv/tront_/)', inline=False)
     embed.add_field(name='Twitter', value='[twitter.com/vitortront](https://twitter.com/vitortront)', inline=False)
     embed.add_field(name='Youtube', value='[youtube.com/tront_](https://youtube.com/tront_)', inline=False)
@@ -107,7 +121,7 @@ async def lives(ctx):
         colour = discord.Colour.magenta() )
     embed.set_author(name='Informações da livestream que mais cresce no Brasil')
     embed.add_field(name='Onde acontece?', value='Ao vivo na [twitch.tv/tront_](https://www.twitch.tv/tront_/)', inline=False)
-    embed.add_field(name='Quando acontece?', value='De terça a sexta, a partir das 19h - Horário de Brasília', inline=False)
+    embed.add_field(name='Quando acontece?', value='De terça a domingo, a partir das 19h - Horário de Brasília', inline=False)
     await ctx.send(embed=embed)
 
 # Comando ($setup) - lista o setup do streamer da bola azul.
