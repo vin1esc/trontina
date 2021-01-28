@@ -5,6 +5,7 @@ import discord
 import asyncio
 from dotenv import load_dotenv
 from discord.ext import commands
+from datetime import datetime, timedelta, timezone
 print ('Starting Trontina...')
 
 # Token privado que faz ligação com o Discord.
@@ -13,6 +14,9 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 # Pré-fixo que usaremos para invocar a Trontina no servidor.
 bot = commands.Bot(command_prefix='$')
+
+# Data da última mensagem da Trontina.
+trontinaNextMessageAt = datetime.now()
 
 # Status da Trontina.
 @bot.event
@@ -24,13 +28,22 @@ async def on_ready():
 # Interações da Trontina.
 @bot.event
 async def on_message(message):
+    global trontinaNextMessageAt
+    now = datetime.now()
 
-    # Não queremos que ela responda a si messmo, certo? certo!
+    # Não queremos que ela responda a si mesmo, certo? certo!
     if message.author == bot.user:
+        if 'bom dia' in message.content.lower():
+            trontinaNextMessageAt = message.created_at.replace(tzinfo=timezone.utc).astimezone(tz=None) + timedelta(minutes=5)
         return
 
     # Bom dia!
-    if 'bom dia?' in message.content.lower():
+    if 'bom dia' in message.content.lower():
+
+        # Não queremos que ela se canse de responder bom dias, não é mesmo?
+        if trontinaNextMessageAt.timestamp() > now.timestamp():
+            return
+
         await message.reply('Bom dia :sun_with_face: ', mention_author=True)
 
     # Mensagens pré-programadas.
