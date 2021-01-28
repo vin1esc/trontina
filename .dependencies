@@ -1,0 +1,9 @@
+# required dependencies to run trontina_project
+
+discord.py>=1.6.0 #discord api
+praw>=7.1.0 # reddit api
+python_dotenv>=0.15.0 # in case you want to secure your ids using a .env file
+
+# all of above was installed using pip==21.0 and running great on python==3.8.5
+# pip can be installed from bash using 'apt install python-pip' sentence
+# asyncio, os and random libraries came by default on python3
